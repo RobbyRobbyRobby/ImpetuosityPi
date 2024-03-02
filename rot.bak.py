@@ -125,7 +125,7 @@ class ServoControl:
 		if (returnToCentre):
 			self.CentreWheels()
 
-	def Pivot(self, pivotBy):
+	def Pivot(self, pivotBy, stepDelay = 0.025):
 		if (not self.moving):
 
 			self.moving = True
@@ -143,7 +143,7 @@ class ServoControl:
 					self.allStop = True
 
 				self.SetWheelAngle(self.angleCurrent)
-				sleep(0.01)
+				sleep(stepDelay)
 			self.allStop = False
 			print("stopped at ", self.angleCurrent)
 			self.moving = False
@@ -165,6 +165,8 @@ class DriveControl:
 	driveRightPWM = None
 
 	servoControl = None
+	#pwmFreq = 500
+	pwmFreq = 1000
 
 	def SetupDriveMotorControl(self):
 		GPIO.setmode(GPIO.BCM)
@@ -180,9 +182,9 @@ class DriveControl:
 		GPIO.output(self.driveRightForwardPin, GPIO.LOW)
 		GPIO.output(self.driveRightBackwardPin, GPIO.LOW)
 
-		self.driveLeftPWM = GPIO.PWM(self.driveLeftEnablePin, 500)
+		self.driveLeftPWM = GPIO.PWM(self.driveLeftEnablePin, self.pwmFreq)
 		self.driveLeftPWM.start(0)
-		self.driveRightPWM = GPIO.PWM(self.driveRightEnablePin, 500)
+		self.driveRightPWM = GPIO.PWM(self.driveRightEnablePin, self.pwmFreq)
 		self.driveRightPWM.start(0)
 
 	def AllStop(self):
@@ -253,16 +255,6 @@ class DriveControl:
 		self.AllStop()
 		print("Drive Test Complete")
 
-
-#----------------------
-# Execution Point
-#----------------------
-
-ready = False
-driveControl = None
-servoControl = None
-
-
 #----------------------
 # Keyboard input
 #----------------------
@@ -274,7 +266,6 @@ def keyPressed(key):
 	if (key == "x"):
 		driveControl.SetDrivePower(MotorChannelRequest.BOTH, MotorDirectionRequest.BACKWARD)
 	if (key == "s"):
-		#servoControl.AllStop()
 		driveControl.AllStop()
 	if (key == "a"):
 		servoControl.AllStop()
@@ -296,22 +287,24 @@ def keyPressed(key):
 	if (key == "right"):
 		servoControl.PanTiltBy(10, 0)
 
-def keyReleased(key):
-	print("released: ", key)
-	if (key == "w"):
-		driveControl.AllStop()
-	if (key == "s"):
-		driveControl.AllStop()
-	if (key == "a"):
-		servoControl.AllStop()
-	if (key == "d"):
-		servoControl.AllStop()
+#def keyReleased(key):
+#	print("released: ", key)
+#	if (key == "w"):
+#		driveControl.AllStop()
+#	if (key == "s"):
+#		driveControl.AllStop()
+#	if (key == "a"):
+#		servoControl.AllStop()
+#	if (key == "d"):
+#		servoControl.AllStop()
 
-#keyboard.on_press_key("w", driveControl.SetDrivePower(MotorChannelRequest.BOTH, MotorDirectionRequest.FORWARD))
-#keyboard.on_press_key("s", driveControl.SetDrivePower(MotorChannelRequest.BOTH, MotorDirectionRequest.BACKWARD))
+#----------------------
+# Execution Point
+#----------------------
 
-#keyboard.on_press_key("x", driveControl.AllStop())
-
+ready = False
+driveControl = None
+servoControl = None
 
 while (True):
 	if (not ready):
