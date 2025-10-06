@@ -31,7 +31,7 @@ class Movement_Controller_Car(Movement_Controller):
     __movement_device_centre = None
 
     def __init__(self, pca9285):
-        self.__movement_device_centre = Movement_Device(None, None, None)
+        self.__movement_device_centre = Movement_Device(Propulsion_Device_Config(), Rotation_Device_Config(), None)
 
     # move at the requested power, turning at the requested angle (offset from 0 = straight ahead)
     def Move(self, power, angle): 
@@ -63,8 +63,8 @@ class Movement_Controller_Tracked(Movement_Controller):
     __movement_device_right = None
 
     def __init__(self, pca9285):
-        self.__movement_device_left = Movement_Device(None, None, None) 
-        self.__movement_device_right = Movement_Device(None, None, None)
+        self.__movement_device_left = Movement_Device(Propulsion_Device_Config(), None, None) 
+        self.__movement_device_right = Movement_Device(Propulsion_Device_Config(), None, None)
 
     # move at the requested power, turning at the requested angle (offset from 0 = straight ahead)
     def Move(self, power, angle): # move at the requested power, turning at the requested angle (offset from 0 = straight ahead)
@@ -72,7 +72,8 @@ class Movement_Controller_Tracked(Movement_Controller):
 
     # change direction without moving, to the requested angle offset from current direction
     def Rotate_For(self, power, seconds): 
-        pass
+        self.__movement_device_left.Set_Propulsion_Power(power)
+        self.__movement_device_right.Set_Propulsion_Power(-power)
 
     def Adjust_Power_For_Pan(self):
         pass
@@ -93,12 +94,22 @@ class Movement_Controller_Tracked(Movement_Controller):
 #   2 power values; one left, one right.
 #   4 independant steering angles.
 class Movement_Controller_Rover(Movement_Controller): 
-    __movement_device_left = None
-    __movement_device_right = None
+    __movement_device_left_Front = None
+    __movement_device_left_Centre = None
+    __movement_device_left_Back = None
+    
+    __movement_device_right_Front = None
+    __movement_device_right_Centre = None
+    __movement_device_right_Back = None
 
     def __init__(self, pca9285):
-        self.__movement_device_left = Movement_Device(Propulsion_Config() , None, None) 
-        self.__movement_device_right = Movement_Device(None, None, None)
+        self.__movement_device_left_Front = Movement_Device(Propulsion_Device_Config() , Rotation_Device_Config(), None) 
+        self.__movement_device_left_Centre = Movement_Device(Propulsion_Device_Config() , None, None) 
+        self.__movement_device_left_Back = Movement_Device(Propulsion_Device_Config() , Rotation_Device_Config(), None) 
+
+        self.__movement_device_right_Front = Movement_Device(Propulsion_Device_Config(), Rotation_Device_Config(), None)
+        self.__movement_device_right_Centre = Movement_Device(Propulsion_Device_Config(), None, None)
+        self.__movement_device_right_Back = Movement_Device(Propulsion_Device_Config(), Rotation_Device_Config(), None)
 
     # move at the requested power, turning at the requested angle (offset from 0 = straight ahead)
     def Move(self, power, angle): 
@@ -117,9 +128,19 @@ class Movement_Controller_Rover(Movement_Controller):
         pass
 
     def Update(self):
-        self.__movement_device_left.Update()
-        self.__movement_device_right.Update()
+        self.__movement_device_left_Front.Update()
+        self.__movement_device_left_Centre.Update()
+        self.__movement_device_left_Back.Update()
+
+        self.__movement_device_right_Front.Update()
+        self.__movement_device_right_Centre.Update()
+        self.__movement_device_right_Back.Update()
 
     def _Set_Power(self, left, right):
-        self.__movement_device_left.Set_Propulsion_Power(left)
-        self.__movement_device_right.Set_Propulsion_Power(right)
+        self.__movement_device_left_Front.Set_Propulsion_Power(left)
+        self.__movement_device_left_Centre.Set_Propulsion_Power(left)
+        self.__movement_device_left_Back.Set_Propulsion_Power(left)
+
+        self.__movement_device_right_Front.Set_Propulsion_Power(right)
+        self.__movement_device_right_Centre.Set_Propulsion_Power(right)
+        self.__movement_device_right_Back.Set_Propulsion_Power(right)

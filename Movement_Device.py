@@ -5,9 +5,9 @@ class Movement_Device:
 
     # Constructor
     def __init__(self, propulsion_config, pan_config, tilt_config):
-        self._Set_Tilt_Config(propulsion_config)
-        self._Set_Propulsion_Config(pan_config)
-        self._Set_Propulsion_Config(tilt_config)
+        self._Set_Propulsion_Config(propulsion_config)
+        self._Set_Pan_Config(pan_config)
+        self._Set_Tilt_Config(tilt_config)
 
     # Destructor
     def __del__(self):
@@ -90,4 +90,6 @@ class Movement_Device:
             self.__tilt.Set_Position(value)
     
     def Update(self):
+        _Update_Propulsion()
+        _Update_Pan()
         pass

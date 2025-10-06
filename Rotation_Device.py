@@ -7,14 +7,39 @@ class Rotation_Device_Config:
     pca9685 = None
     control_pin_index = -1
     position_change_degrees_per_second = -1 #negative = instant change
-    
+
     # Constructor
-    def __init__(self, pca, pin):
-        if (pca == None or pin < 0):
+    def __init__(self):
+        pass
+
+    # Constructor
+    def __init__(self, rotation_reversed, rotation_max, rotation_home, rotation_min, rotation_current, pca9685, control_pin_index, position_change_degrees_per_second):
+        if (rotation_reversed != None):
+            self.rotation_reversed = rotation_reversed
+        if (rotation_max != None):
+            self.rotation_max = rotation_max
+        if (rotation_home != None):
+            self.rotation_home = rotation_home
+        if (rotation_min != None):
+            self.rotation_min = rotation_min
+        if (pca9685 != None):
+            self.pca9685 = pca9685
+        if (control_pin_index != None):
+            self.control_pin_index = control_pin_index
+        if (rotation_current != None):
+            self.rotation_current = rotation_current
+        if (position_change_degrees_per_second != None):
+            self.position_change_degrees_per_second = position_change_degrees_per_second
+
+    # Constructor
+    def __init__(self, pca9685, control_pin_index):
+        if (pca9685 == None or control_pin_index < 0):
             raise Exception("Invalid arguments. You need a PCA9685 device and control pin index.")
         else:
-            self.pca9685 = pca
-            self.control_pin_index = pin
+            if (pca9685 != None):
+                self.pca9685 = pca9685
+            if (control_pin_index != None):
+                self.control_pin_index = control_pin_index
 
 class Rotation_Device:
     _rotation_reversed = False #automaticaly reverse ann requested values
