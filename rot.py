@@ -4,7 +4,30 @@ from board import SCL, SDA
 from adafruit_pca9685 import PCA9685
 from adafruit_motor import servo
 from enum import Enum
-import RPi.GPIO as GPIO
+try:
+	import RPi.GPIO as GPIO
+except Exception:
+	# Provide a lightweight fallback for environments without RPi.GPIO (useful for testing on non-RPi machines)
+	class _FakePWM:
+		def __init__(self, pin, freq):
+			self.pin = pin
+			self.freq = freq
+			self._duty = 0
+		def start(self, duty):
+			self._duty = duty
+		def ChangeDutyCycle(self, duty):
+			self._duty = duty
+		def stop(self):
+			pass
+	class _FakeGPIO:
+		BCM = 'BCM'
+		LOW = 0
+		HIGH = 1
+		def setmode(self, mode): pass
+		def setup(self, pin, mode): pass
+		def output(self, pin, val): pass
+		def PWM(self, pin, freq): return _FakePWM(pin, freq)
+	GPIO = _FakeGPIO()
 from sshkeyboard import listen_keyboard
 
 doTests = False
@@ -241,7 +264,7 @@ class DriveControl:
 
 		if (not validRequest):
 			print("Bad Motor Power Request")
-			DriveAllStop()
+			self.DriveAllStop()
 
 	def Test(self):
 		print("Test Forward")
@@ -253,6 +276,8 @@ class DriveControl:
 		self.AllStop()
 		print("Drive Test Complete")
 
+	def DriveAllStop(self):
+		self.AllStop()
 
 #----------------------
 # Execution Point

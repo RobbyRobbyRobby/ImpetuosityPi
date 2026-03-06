@@ -31,6 +31,7 @@ class Propulsion_Device:
 
     # Constructor
     def __init__(self, config):
+        conf = None
         if (config != None):
             conf = Propulsion_Device_Config(config)
         if (conf != None):

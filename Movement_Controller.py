@@ -1,8 +1,10 @@
 import Movement_Device
+from Propulsion_Device import Propulsion_Device_Config  
+from Rotation_Device import Rotation_Device_Config  
 from adafruit_pca9685 import PCA9685
 
 class Movement_Controller:
-    def __init__(self, pca9285):
+    def __init__(self, pca9685):
         pass
 
     def Move(self, power, angle): # move at the requested power, turning at the requested angle (offset from 0 = straight ahead)
@@ -30,8 +32,14 @@ class Movement_Controller:
 class Movement_Controller_Car(Movement_Controller):
     __movement_device_centre = None
 
-    def __init__(self, pca9285):
-        self.__movement_device_centre = Movement_Device(Propulsion_Device_Config(), Rotation_Device_Config(), None)
+    __pca = None
+
+    def __init__(self, pca9685):
+        self.__pca = pca9685
+        self.__movement_device_centre = Movement_Device(
+            Propulsion_Device_Config(), 
+            Rotation_Device_Config(), 
+            None)
 
     # move at the requested power, turning at the requested angle (offset from 0 = straight ahead)
     def Move(self, power, angle): 
@@ -62,7 +70,10 @@ class Movement_Controller_Tracked(Movement_Controller):
     __movement_device_left = None
     __movement_device_right = None
 
-    def __init__(self, pca9285):
+    __pca = None
+
+    def __init__(self, pca9685):
+        self.__pca = pca9685
         self.__movement_device_left = Movement_Device(Propulsion_Device_Config(), None, None) 
         self.__movement_device_right = Movement_Device(Propulsion_Device_Config(), None, None)
 
@@ -102,14 +113,39 @@ class Movement_Controller_Rover(Movement_Controller):
     __movement_device_right_Centre = None
     __movement_device_right_Back = None
 
-    def __init__(self, pca9285):
-        self.__movement_device_left_Front = Movement_Device(Propulsion_Device_Config() , Rotation_Device_Config(), None) 
-        self.__movement_device_left_Centre = Movement_Device(Propulsion_Device_Config() , None, None) 
-        self.__movement_device_left_Back = Movement_Device(Propulsion_Device_Config() , Rotation_Device_Config(), None) 
+    __pca = None
 
-        self.__movement_device_right_Front = Movement_Device(Propulsion_Device_Config(), Rotation_Device_Config(), None)
-        self.__movement_device_right_Centre = Movement_Device(Propulsion_Device_Config(), None, None)
-        self.__movement_device_right_Back = Movement_Device(Propulsion_Device_Config(), Rotation_Device_Config(), None)
+    def __init__(self, pca9685):
+        self.__pca = pca9685
+
+        left_front = Rotation_Device_Config(self.__pca, 0)
+        left_front.Set_Initial_Parameters(rotation_reversed = True)
+
+        self.__movement_device_left_Front = Movement_Device.Movement_Device(
+            Propulsion_Device_Config(False, 100, 0, 0, 1), 
+            left_front, 
+            None) 
+        self.__movement_device_left_Centre = Movement_Device.Movement_Device(
+            Propulsion_Device_Config(False, 100, 0, 0, 1), 
+            None, 
+            None) 
+        self.__movement_device_left_Back = Movement_Device.Movement_Device(
+            Propulsion_Device_Config(False, 100, 0, 0, 1), 
+            Rotation_Device_Config(self.__pca, 1).Set_Initial_Parameters(), 
+            None) 
+
+        self.__movement_device_right_Front = Movement_Device.Movement_Device(
+            Propulsion_Device_Config(True, 100, 0, 0, 1), 
+            Rotation_Device_Config.Create_Rotation_Device_Config(self.__pca, 2, False), 
+            None)
+        self.__movement_device_right_Centre = Movement_Device.Movement_Device(
+            Propulsion_Device_Config(True, 100, 0, 0, 1), 
+            None, 
+            None)
+        self.__movement_device_right_Back = Movement_Device.Movement_Device(
+            Propulsion_Device_Config(True, 100, 0, 0, 1), 
+            Rotation_Device_Config.Create_Rotation_Device_Config(self.__pca, 3, True), 
+            None)
 
     # move at the requested power, turning at the requested angle (offset from 0 = straight ahead)
     def Move(self, power, angle): 
