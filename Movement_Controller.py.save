@@ -11,10 +11,7 @@ class Movement_Controller:
     def Move(self, power, angle): # move at the requested power, turning at the requested angle (offset from 0 = straight ahead)
         pass
 
-    def Rotate_For(self, offset): # change direction without moving, to the requested angle offset from current direction
-        pass
-
-    def Rotate_To(self, newAngle): # change direction without moving, to the requested angle
+    def Rotate_For(self, power, seconds): # change direction without moving, to the requested angle offset from current direction
         pass
 
     def Adjust_Power_For_Pan(self):
@@ -50,12 +47,7 @@ class Movement_Controller_Car(Movement_Controller):
         self._Set_Power(power, power)
 
     # change direction without moving, to the requested angle offset from current direction
-    def Rotate_For(self, offset): # change direction without moving, to the requested angle offset from current direction
-        # Not supported in this configuration
-        pass
-
-    # change direction, set to the angle requested angle disregarding current angle
-    def Rotate_For(self, newAngle):
+    def Rotate_For(self, power, seconds): # change direction without moving, to the requested angle offset from current direction
         # Not supported in this configuration
         pass
 
@@ -91,16 +83,9 @@ class Movement_Controller_Tracked(Movement_Controller):
         self._Set_Power(power, power)
 
     # change direction without moving, to the requested angle offset from current direction
-    def Rotate_For(self, offset): 
-        pass
-	#self.__movement_device_left.Set_Propulsion_Power(power)
-        #self.__movement_device_right.Set_Propulsion_Power(-power)
-
-    # change direction, set to the angle requested angle disregarding current angle
-    def Rotate_To(self, newAngle): 
-        pass
-	#self.__movement_device_left.Set_Propulsion_Power(power)
-        #self.__movement_device_right.Set_Propulsion_Power(-power)
+    def Rotate_For(self, power, seconds): 
+        self.__movement_device_left.Set_Propulsion_Power(power)
+        self.__movement_device_right.Set_Propulsion_Power(-power)
 
     def Adjust_Power_For_Pan(self):
         pass
@@ -120,55 +105,47 @@ class Movement_Controller_Tracked(Movement_Controller):
 # Can utilise / output
 #   2 power values; one left, one right.
 #   4 independant steering angles.
-class Movement_Controller_Rover(Movement_Controller):
+class Movement_Controller_Rover(Movement_Controller): 
     __movement_device_left_Front = None
     __movement_device_left_Centre = None
     __movement_device_left_Back = None
-
+    
     __movement_device_right_Front = None
     __movement_device_right_Centre = None
     __movement_device_right_Back = None
 
     __pca = None
 
-    __defaultLeftForwardPin = 27
-    __defaultLeftBackwardPin = 22
-    __defaultLeftEnablePin = 13
-
-    __defaultRightForwardPin = 23
-    __defaultRightBackwardPin = 24
-    __defaultRightEnablePin = 18
-
     def __init__(self, pca9685):
         self.__pca = pca9685
 
-        #left_front = Rotation_Device_Config(self.__pca)
-        #left_front.Set_Initial_Parameters(rotation_reversed = True)
+        left_front = Rotation_Device_Config(self.__pca)
+        left_front.Set_Initial_Parameters(rotation_reversed = True)
 
         self.__movement_device_left_Front = Movement_Device.Movement_Device(
-            None,
-            Rotation_Device_Config(self.__pca, 0).Set_Initial_Parameters(False), 
+            Propulsion_Device_Config(False, 100, 0, 0, 1), 
+            Rotation_Device_Config(self.__pca, 0).Set_Initial_Parameters(), 
             None) 
         self.__movement_device_left_Centre = Movement_Device.Movement_Device(
-            Propulsion_Device_Config(self.__defaultLeftForwardPin, self.__defaultLeftBackwardPin, self.__defaultLeftEnablePin, False, 100, 0, 0, 1), 
+            Propulsion_Device_Config(False, 100, 0, 0, 1), 
             None,
             None)
         self.__movement_device_left_Back = Movement_Device.Movement_Device(
-            None,
-            Rotation_Device_Config(self.__pca, 1).Set_Initial_Parameters(True), 
+            Propulsion_Device_Config(False, 100, 0, 0, 1), 
+            Rotation_Device_Config(self.__pca, 1).Set_Initial_Parameters(), 
             None) 
 
         self.__movement_device_right_Front = Movement_Device.Movement_Device(
-            None,
-            Rotation_Device_Config(self.__pca, 2).Set_Initial_Parameters(True), 
+            Propulsion_Device_Config(True, 100, 0, 0, 1), 
+            Rotation_Device_Config.Create_Rotation_Device_Config(self.__pca, 2, False), 
             None)
         self.__movement_device_right_Centre = Movement_Device.Movement_Device(
-            Propulsion_Device_Config(self.__defaultRightForwardPin, self.__defaultRightBackwardPin, self.__defaultRightEnablePin, True, 100, 0, 0, 1), 
+            Propulsion_Device_Config(True, 100, 0, 0, 1), 
             None, 
             None)
-        self.__movement_device_right_Back = Movement_Device.Movement_Device(
-            None,
-            Rotation_Device_Config(self.__pca, 3).Set_Initial_Parameters(False), 
+        self.__movement_device_right_Back = Movement_Device(
+            Propulsion_Device_Config(True, 100, 0, 0, 1), 
+            Rotation_Device_Config.Create_Rotation_Device_Config(self.__pca, 3, True), 
             None)
 
     # move at the requested power, turning at the requested angle (offset from 0 = straight ahead)
@@ -176,23 +153,12 @@ class Movement_Controller_Rover(Movement_Controller):
         # Pan corner wheels, power corner wheels.  Adjust power for each wheel depending on the angle requested.
         # Pan is set to value requested.
         # power and angle can be set in parallel.
-        # Dont stop first.
+        # Dont stop first.        
         self._Set_Power(power, power)
 
     # change direction without moving, to the requested angle offset from current direction
-    def Rotate_For(self, offset): 
+    def Rotate_For(self, power, seconds): 
         #Note, Halt first, then complete wheel rotation, then apply power.
-        pass
-
-    # change direction, set to the angle requested angle disregarding current angle.
-    def Rotate_To(self, newAngle): 
-        #Note, Halt first, then complete wheel rotation, then apply power.
-        self.__movement_device_left_Front.Request_Pan_Position(newAngle)
-        self.__movement_device_left_Centre.Request_Pan_Position(newAngle)
-        self.__movement_device_left_Back.Request_Pan_Position(newAngle)
-        self.__movement_device_right_Front.Request_Pan_Position(newAngle)
-        self.__movement_device_right_Centre.Request_Pan_Position(newAngle)
-        self.__movement_device_right_Back.Request_Pan_Position(newAngle)
         pass
 
     def Adjust_Power_For_Pan(self):
@@ -208,10 +174,10 @@ class Movement_Controller_Rover(Movement_Controller):
         self.__movement_device_right_Back.Update()
 
     def _Set_Power(self, left, right):
-        self.__movement_device_left_Front.Request_Propulsion_Power(left)
-        self.__movement_device_left_Centre.Request_Propulsion_Power(left)
-        self.__movement_device_left_Back.Request_Propulsion_Power(left)
+        self.__movement_device_left_Front.Set_Propulsion_Power(left)
+        self.__movement_device_left_Centre.Set_Propulsion_Power(left)
+        self.__movement_device_left_Back.Set_Propulsion_Power(left)
 
-        self.__movement_device_right_Front.Request_Propulsion_Power(right)
-        self.__movement_device_right_Centre.Request_Propulsion_Power(right)
-        self.__movement_device_right_Back.Request_Propulsion_Power(right)
+        self.__movement_device_right_Front.Set_Propulsion_Power(right)
+        self.__movement_device_right_Centre.Set_Propulsion_Power(right)
+        self.__movement_device_right_Back.Set_Propulsion_Power(right)

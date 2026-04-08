@@ -3,6 +3,10 @@ import Rotation_Device
 
 class Movement_Device:
 
+    def __init__(self):
+        # Default Constructor
+        pass
+
     # Constructor
     def __init__(self, propulsion_config, pan_config, tilt_config):
         self._Init_Propulsion(propulsion_config)
@@ -31,10 +35,15 @@ class Movement_Device:
         self.__propulsion_config = config
         if (self.__propulsion_config != None):
             self.__propulsion = Propulsion_Device.Propulsion_Device(self.__propulsion_config)
+        else:
+            print("Skipping init of propulsion device; no config provided.")
 
     def _Get_Propulsion_Enabled(self):
-        return self.__propulsion == None    
-        
+        return self.__propulsion != None
+
+#    def _Set_Propulsion_Enabled(self, value):
+#        self.__propulsion = value
+
     def _Update_Propulsion(self):
         pass
 
@@ -46,14 +55,20 @@ class Movement_Device:
     __pan = None
 
     def _Init_Pan(self, config):
+        print("Init pan on movement device", config._index)
         self.__pan_config = config
         if (self.__pan_config != None):
+            print("pan config available")
             self.__pan = Rotation_Device.Rotation_Device(self.__pan_config)
 
     def _Get_Pan_Enabled(self):
-        return self.__pan == None
+        return self.__pan != None
 
     def _Update_Pan(self):
+        pass
+
+    def Pan_To(newAngle):
+        self.__pan.Set_Position(newAngle)
         pass
 
     #=================================================
@@ -73,21 +88,22 @@ class Movement_Device:
 
     def _Update_Tilt(self):
         pass
-    
+
     #=================================================
     # Properties and public bits
     #=================================================
-    
-    Propulsion_Enabled = property(_Get_Propulsion_Enabled)    
+    Propulsion_Enabled = property(_Get_Propulsion_Enabled, None, None, "")
 
     def Request_Propulsion_Power(self, value):
-        if self.__propulsion_enabled:
+        if self.Propulsion_Enabled:
             self.__propulsion.Set_Power(value)
+        #else:
+            #print("Error setting propulsion power; enabled == False")
 
-    Pan_Enabled = property(_Get_Pan_Enabled)
+    Pan_Enabled = property(_Get_Pan_Enabled, None, None, "")
 
     def Request_Pan_Position(self, value):
-        if self.__pan_enabled:
+        if self.Pan_Enabled:
             self.__pan.Set_Position(value)
 
     Tilt_Enabled = property(_Get_Tilt_Enabled)
@@ -95,7 +111,7 @@ class Movement_Device:
     def Request_Tilt_Position(self, value):
         if self.__tilt_enabled:
             self.__tilt.Set_Position(value)
-    
+
     def Update(self):
         self._Update_Propulsion()
         self._Update_Pan()

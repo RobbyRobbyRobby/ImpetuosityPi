@@ -36,8 +36,8 @@ class RepeatingTimer:
         self._timer.daemon = True  # Allows program to exit even if timer is running
         self._timer.start()
 
+    """Start the repeating timer."""
     def start(self):
-        """Start the repeating timer."""
         with self._lock:
             if not self._is_running:
                 self._is_running = True

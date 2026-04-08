@@ -6,15 +6,13 @@ class Rotation_Device_Config:
     _rotation_current = 0
     _pca9685 = None
     _position_change_degrees_per_second = -1 #negative = instant change
-    _index = 0
 
     # Constructor
     def __init__(self, pca9685, index):
-        if (pca9685 == None or index == None):
+        if (pca9685 == None):
             raise Exception("Invalid arguments. You need a PCA9685 device.")
         else:
             self._pca9685 = pca9685
-            self._index = index
 
     def Set_Initial_Parameters(
             self,
@@ -23,8 +21,7 @@ class Rotation_Device_Config:
             rotation_home = None,
             rotation_min = None,
             rotation_current = None,
-            position_change_degrees_per_second = None,
-            index = None):
+            position_change_degrees_per_second = None):
 
         if (rotation_reversed != None):
             self._rotation_reversed = rotation_reversed
@@ -38,8 +35,6 @@ class Rotation_Device_Config:
             self._rotation_current = rotation_current
         if (position_change_degrees_per_second != None):
             self._position_change_degrees_per_second = position_change_degrees_per_second
-        if (index != None):
-            self._index = index
 
 class Rotation_Device:
     _rotation_reversed = False #automaticaly reverse ann requested values
@@ -47,13 +42,10 @@ class Rotation_Device:
     _rotation_max = 0
     _rotation_home = 0
     _rotation_min = 0
-    _servo = None
-    _pca = None
     #_conf = None
 
     # Constructor
     def __init__(self, config):
-        print("Rotation Device init started")
         if (config == None):
             #self._conf = config
             config = Rotation_Device_Config()
@@ -63,8 +55,6 @@ class Rotation_Device:
             self._rotation_max = config._rotation_max
             self._rotation_home = config._rotation_home
             self._rotation_min = config._rotation_min
-            self._pca = config._pca9685
-            self._servo = server.Servo(self._pca.channels[index])
             self.Go_Home()
 
     # Destructor
@@ -72,7 +62,7 @@ class Rotation_Device:
         pass
 
     def Set_Position(self, value):
-        self._servo.angle = value
+        
         pass
 
     def Go_Home(self):
