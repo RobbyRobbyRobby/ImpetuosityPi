@@ -41,6 +41,8 @@ class Rotation_Device_Config:
         if (index != None):
             self._index = index
 
+from adafruit_motor import servo
+
 class Rotation_Device:
     _rotation_reversed = False #automaticaly reverse ann requested values
     _rotation_current = 0
@@ -64,7 +66,7 @@ class Rotation_Device:
             self._rotation_home = config._rotation_home
             self._rotation_min = config._rotation_min
             self._pca = config._pca9685
-            self._servo = server.Servo(self._pca.channels[index])
+            self._servo = servo.Servo(config._index)    #channels[index])
             self.Go_Home()
 
     # Destructor

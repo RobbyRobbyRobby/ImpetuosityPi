@@ -145,27 +145,35 @@ class Movement_Controller_Rover(Movement_Controller):
         #left_front = Rotation_Device_Config(self.__pca)
         #left_front.Set_Initial_Parameters(rotation_reversed = True)
 
+        #Left Front, Pan Only (Drive configured via centre).
+        lfpc = Rotation_Device_Config(self.__pca, 0)
+        lfpc.Set_Initial_Parameters(False)
         self.__movement_device_left_Front = Movement_Device.Movement_Device(
             None,
-            Rotation_Device_Config(self.__pca, 0).Set_Initial_Parameters(False), 
-            None) 
+            lfpc, #Rotation_Device_Config(self.__pca, 0).Set_Initial_Parameters(False), 
+            None)
+        #Centre Left, Drive Only.
         self.__movement_device_left_Centre = Movement_Device.Movement_Device(
             Propulsion_Device_Config(self.__defaultLeftForwardPin, self.__defaultLeftBackwardPin, self.__defaultLeftEnablePin, False, 100, 0, 0, 1), 
             None,
             None)
+        #Rear Left, Pan Only (Drive congigured via centre).
         self.__movement_device_left_Back = Movement_Device.Movement_Device(
             None,
             Rotation_Device_Config(self.__pca, 1).Set_Initial_Parameters(True), 
             None) 
 
+        #Right Front, Pan Only (Drive configured via centre).
         self.__movement_device_right_Front = Movement_Device.Movement_Device(
             None,
             Rotation_Device_Config(self.__pca, 2).Set_Initial_Parameters(True), 
             None)
+        #Right Centre, Drive Only.
         self.__movement_device_right_Centre = Movement_Device.Movement_Device(
             Propulsion_Device_Config(self.__defaultRightForwardPin, self.__defaultRightBackwardPin, self.__defaultRightEnablePin, True, 100, 0, 0, 1), 
             None, 
             None)
+        #Right Rear, Pan Only (Drive configured via centre).
         self.__movement_device_right_Back = Movement_Device.Movement_Device(
             None,
             Rotation_Device_Config(self.__pca, 3).Set_Initial_Parameters(False), 

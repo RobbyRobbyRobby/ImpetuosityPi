@@ -9,6 +9,7 @@ class Movement_Device:
 
     # Constructor
     def __init__(self, propulsion_config, pan_config, tilt_config):
+        print("Movement Device constructor.")
         self._Init_Propulsion(propulsion_config)
         self._Init_Pan(pan_config)
         self._Init_Tilt(tilt_config)
@@ -55,11 +56,14 @@ class Movement_Device:
     __pan = None
 
     def _Init_Pan(self, config):
-        print("Init pan on movement device", config._index)
-        self.__pan_config = config
-        if (self.__pan_config != None):
-            print("pan config available")
-            self.__pan = Rotation_Device.Rotation_Device(self.__pan_config)
+        if (config == None):
+            print("no pan config passed")
+        else:
+            print("Init pan on movement device", config._index)
+            self.__pan_config = config
+            if (self.__pan_config != None):
+                print("pan config available")
+                self.__pan = Rotation_Device.Rotation_Device(self.__pan_config)
 
     def _Get_Pan_Enabled(self):
         return self.__pan != None
@@ -68,6 +72,7 @@ class Movement_Device:
         pass
 
     def Pan_To(newAngle):
+        print("Pan Requested")
         self.__pan.Set_Position(newAngle)
         pass
 
@@ -97,14 +102,17 @@ class Movement_Device:
     def Request_Propulsion_Power(self, value):
         if self.Propulsion_Enabled:
             self.__propulsion.Set_Power(value)
-        #else:
-            #print("Error setting propulsion power; enabled == False")
+            print("Propulsion power set to ", value)
+        else:
+            print("Error setting propulsion power; enabled == False")
 
     Pan_Enabled = property(_Get_Pan_Enabled, None, None, "")
 
     def Request_Pan_Position(self, value):
         if self.Pan_Enabled:
             self.__pan.Set_Position(value)
+        else:
+            print("Pan not enabled")
 
     Tilt_Enabled = property(_Get_Tilt_Enabled)
 
